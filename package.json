@@ -1,7 +1,7 @@
 {
   "name": "notifica-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "Notification bot for Habitica",
   "scripts": {
     "build": "netlify-lambda build src/functions",
     "dev": "netlify-lambda serve src/functions",
