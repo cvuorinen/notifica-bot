@@ -57,6 +57,14 @@ exports.handler = async function(event) {
           name: params.chat.username
         });
         await saveSubscriptions(subscriptions);
+
+        const message = `Hello **${
+          params.chat.username
+        }**,  \nYou have now been subscribed to Guild chat notifications by me, @${botName}, so I will send you a private message everytime someone mentions your @username in Guild chat. How nice is that? Looking forward to sending you more messages.
+
+To unsubscribe, you can send a message in the Guild chat with text: \`@${botName} unsubscribe\``;
+
+        await sendMessage(message, params.chat.uuid);
       }
     }
 
@@ -65,6 +73,12 @@ exports.handler = async function(event) {
         await saveSubscriptions(
           subscriptions.filter(sub => sub.id !== params.chat.uuid)
         );
+
+        const message = `Hi **${
+          params.chat.username
+        }**,  \nYou have been unsubscribed from @${botName} notifications and will not receive any further communication from me. It was nice knowing you.`;
+
+        await sendMessage(message, params.chat.uuid);
       } else {
         console.log(`subscription not found [uuid:${params.chat.uuid}]`); // TODO response?
       }
