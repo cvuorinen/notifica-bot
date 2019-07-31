@@ -42,6 +42,11 @@ exports.handler = async function(event) {
       return { statusCode: 400, body: "Bad Request" };
     }
 
+    if (!params.chat.text.includes("@")) {
+      // nothing to do since no @mentions in message
+      return { statusCode: 200, body: "OK" };
+    }
+
     const { subscriptions } = await getSubscriptions();
 
     if (!subscriptions || !Array.isArray(subscriptions)) {
@@ -54,7 +59,11 @@ exports.handler = async function(event) {
       } else {
         subscriptions.push({
           id: params.chat.uuid,
-          name: params.chat.username
+          name: params.chat.username,
+          displayName:
+            params.chat.user !== params.chat.username
+              ? params.chat.user
+              : undefined
         });
         await saveSubscriptions(subscriptions);
 
@@ -85,7 +94,12 @@ To unsubscribe, you can send a message in the Guild chat with text: \`@${botName
     }
 
     const promises = subscriptions
-      .filter(user => params.chat.text.includes(`@${user.name}`))
+      .filter(
+        user =>
+          params.chat.text.includes(`@${user.name}`) ||
+          (user.displayName &&
+            params.chat.text.includes(`@${user.displayName}`))
+      )
       .map(user => {
         const message = `Hey there **${user.name}**,  \nUser @${
           params.chat.user
