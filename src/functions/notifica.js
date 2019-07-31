@@ -146,6 +146,8 @@ async function sendMessage(message, userId) {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      // X-Client header as per instructions here: https://habitica.fandom.com/wiki/Guidance_for_Comrades#X-Client_Header
+      "x-client": "fa756acf-9127-4a3c-8dac-8ff627d30073-NotificaBot",
       "x-api-user": process.env.USER_ID,
       "x-api-key": process.env.API_KEY
     }
