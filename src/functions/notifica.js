@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 
 const botName = "NotificaBot";
+const subscriptionsGroupId = "ece5526c-bd1c-4f8a-9cdf-6a57a2e981bf";
 
 exports.handler = async function(event) {
   if (event.httpMethod !== "POST") {
@@ -53,43 +54,46 @@ exports.handler = async function(event) {
       return { statusCode: 500, body: "Server Error" };
     }
 
-    if (params.chat.text.includes(`@${botName} subscribe`)) {
-      if (subscriptions.find(sub => sub.id === params.chat.uuid)) {
-        console.log(`already subscribed [uuid:${params.chat.uuid}]`); // TODO response?
-      } else {
-        subscriptions.push({
-          id: params.chat.uuid,
-          name: params.chat.username,
-          displayName:
-            params.chat.user !== params.chat.username
-              ? params.chat.user
-              : undefined
-        });
-        await saveSubscriptions(subscriptions);
+    // handle subscriptions only in specified guild
+    if (subscriptionsGroupId && params.group.id === subscriptionsGroupId) {
+      if (params.chat.text.includes(`@${botName} subscribe`)) {
+        if (subscriptions.find(sub => sub.id === params.chat.uuid)) {
+          console.log(`already subscribed [uuid:${params.chat.uuid}]`); // TODO response?
+        } else {
+          subscriptions.push({
+            id: params.chat.uuid,
+            name: params.chat.username,
+            displayName:
+              params.chat.user !== params.chat.username
+                ? params.chat.user
+                : undefined
+          });
+          await saveSubscriptions(subscriptions);
 
-        const message = `Hello **${
-          params.chat.username
-        }**,  \nYou have now been subscribed to Guild chat notifications by me, @${botName}, so I will send you a private message everytime someone mentions your @username in Guild chat. How nice is that? Looking forward to sending you more messages.
+          const message = `Hello **${
+            params.chat.username
+          }**,  \nYou have now been subscribed to Guild chat notifications by me, @${botName}, so I will send you a private message everytime someone mentions your @username in Guild chat. How nice is that? Looking forward to sending you more messages.
 
 To unsubscribe, you can send a message in the Guild chat with text: \`@${botName} unsubscribe\``;
 
-        await sendMessage(message, params.chat.uuid);
+          await sendMessage(message, params.chat.uuid);
+        }
       }
-    }
 
-    if (params.chat.text.includes(`@${botName} unsubscribe`)) {
-      if (subscriptions.find(sub => sub.id === params.chat.uuid)) {
-        await saveSubscriptions(
-          subscriptions.filter(sub => sub.id !== params.chat.uuid)
-        );
+      if (params.chat.text.includes(`@${botName} unsubscribe`)) {
+        if (subscriptions.find(sub => sub.id === params.chat.uuid)) {
+          await saveSubscriptions(
+            subscriptions.filter(sub => sub.id !== params.chat.uuid)
+          );
 
-        const message = `Hi **${
-          params.chat.username
-        }**,  \nYou have been unsubscribed from @${botName} notifications and will not receive any further communication from me. It was nice knowing you.`;
+          const message = `Hi **${
+            params.chat.username
+          }**,  \nYou have been unsubscribed from @${botName} notifications and will not receive any further communication from me. It was nice knowing you.`;
 
-        await sendMessage(message, params.chat.uuid);
-      } else {
-        console.log(`subscription not found [uuid:${params.chat.uuid}]`); // TODO response?
+          await sendMessage(message, params.chat.uuid);
+        } else {
+          console.log(`subscription not found [uuid:${params.chat.uuid}]`); // TODO response?
+        }
       }
     }
 
