@@ -70,11 +70,14 @@ exports.handler = async function(event) {
           });
           await saveSubscriptions(subscriptions);
 
+          const unsubscribeGuild = subscriptionsGroupId
+            ? `[NotificaBot subscriptions Guild](https://habitica.com/groups/guild/${subscriptionsGroupId}) chat`
+            : "Guild chat";
           const message = `Hello **${
             params.chat.username
           }**,  \nYou have now been subscribed to Guild chat notifications by me, @${botName}, so I will send you a private message everytime someone mentions your @username in Guild chat. How nice is that? Looking forward to sending you more messages.
 
-To unsubscribe, you can send a message in the Guild chat with text: \`@${botName} unsubscribe\``;
+To unsubscribe, you can send a message in the ${unsubscribeGuild} with text: \`@${botName} unsubscribe\``;
 
           await sendMessage(message, params.chat.uuid);
         }
