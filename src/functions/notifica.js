@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 
 const botName = "NotificaBot";
-const subscriptionsGroupId = "ece5526c-bd1c-4f8a-9cdf-6a57a2e981bf";
+const subscriptionsGroupId = process.env.SUBSCRIPTIONS_GROUP_ID;
 
 exports.handler = async function(event) {
   if (event.httpMethod !== "POST") {
@@ -160,7 +160,7 @@ async function saveSubscriptions(subscriptions) {
 }
 
 async function sendMessage(message, userId) {
-  const url = process.env.API_BASE_URL + "/members/send-private-message";
+  const url = process.env.HABITICA_API_URL + "/members/send-private-message";
   const options = {
     method: "POST",
     body: JSON.stringify({ message, toUserId: userId }),
@@ -169,8 +169,8 @@ async function sendMessage(message, userId) {
       "Content-Type": "application/json",
       // X-Client header as per instructions here: https://habitica.fandom.com/wiki/Guidance_for_Comrades#X-Client_Header
       "x-client": "fa756acf-9127-4a3c-8dac-8ff627d30073-NotificaBot",
-      "x-api-user": process.env.USER_ID,
-      "x-api-key": process.env.API_KEY
+      "x-api-user": process.env.HABITICA_USER_ID,
+      "x-api-key": process.env.HABITICA_API_KEY
     }
   };
 
